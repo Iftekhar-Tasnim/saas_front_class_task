@@ -1,10 +1,33 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Ticket, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Ticket, Mail, Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { loginAdmin } from '../actions/auth-actions';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
+    const [status, setStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error', message: string }>({ type: 'idle', message: '' });
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+    const router = useRouter();
+
+    async function handleSubmit(formData: FormData) {
+        setStatus({ type: 'loading', message: 'Authenticating...' });
+        setFieldErrors({});
+
+        const result = await loginAdmin(formData);
+
+        if (result.success) {
+            setStatus({ type: 'success', message: result.message });
+            setTimeout(() => router.push('/admin/dashboard'), 1000);
+        } else {
+            setStatus({ type: 'error', message: result.message });
+            if (result.errors) {
+                setFieldErrors(result.errors);
+            }
+        }
+    }
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex justify-center mb-8">
@@ -25,7 +48,19 @@ export default function AdminLoginPage() {
                     <p className="text-slate-500 text-sm">Please enter your credentials to access the platform control panel.</p>
                 </div>
 
-                <form className="space-y-6" action="#" method="POST">
+                {status.type !== 'idle' && (
+                    <div className={`mb-6 p-4 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-300 ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
+                            status.type === 'loading' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
+                                'bg-red-50 text-red-700 border border-red-100'
+                        }`}>
+                        {status.type === 'success' && <CheckCircle2 size={20} className="shrink-0" />}
+                        {status.type === 'error' && <AlertCircle size={20} className="shrink-0" />}
+                        {status.type === 'loading' && <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />}
+                        <p className="text-sm font-medium">{status.message}</p>
+                    </div>
+                )}
+
+                <form className="space-y-6" action={handleSubmit}>
                     <div>
                         <label htmlFor="email" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                             Email Address
@@ -41,8 +76,13 @@ export default function AdminLoginPage() {
                                 autoComplete="email"
                                 required
                                 placeholder="admin@ticketbd.com"
-                                className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+                                className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm ${fieldErrors.email ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                             />
+                            {fieldErrors.email && (
+                                <p className="mt-1.5 text-xs font-semibold text-red-500 uppercase tracking-tight">
+                                    {fieldErrors.email[0]}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -68,8 +108,13 @@ export default function AdminLoginPage() {
                                 autoComplete="current-password"
                                 required
                                 placeholder="••••••••"
-                                className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
+                                className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-2xl text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm ${fieldErrors.password ? 'border-red-500 bg-red-50' : 'border-slate-200'}`}
                             />
+                            {fieldErrors.password && (
+                                <p className="mt-1.5 text-xs font-semibold text-red-500 uppercase tracking-tight">
+                                    {fieldErrors.password[0]}
+                                </p>
+                            )}
                         </div>
                     </div>
 
@@ -88,10 +133,20 @@ export default function AdminLoginPage() {
                     <div>
                         <button
                             type="submit"
-                            className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-primary/20 text-sm font-bold text-white bg-primary hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all hover:-translate-y-0.5 active:scale-95"
+                            disabled={status.type === 'loading'}
+                            className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 group shadow-lg shadow-slate-200"
                         >
-                            Sign In to Dashboard
-                            <ArrowRight size={18} />
+                            {status.type === 'loading' ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span>Authenticating...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Sign In to Terminal</span>
+                                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>
@@ -100,7 +155,7 @@ export default function AdminLoginPage() {
                     <p className="text-sm text-slate-500 font-medium">
                         Don't have an admin account?{' '}
                         <Link href="/admin/register" className="text-primary font-bold hover:underline">
-                            Register Tenant
+                            Register Admin
                         </Link>
                     </p>
                 </div>

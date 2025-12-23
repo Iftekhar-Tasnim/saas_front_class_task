@@ -16,15 +16,26 @@ import {
     ChevronRight
 } from 'lucide-react';
 
+import { logoutAdmin } from '../actions/auth-actions';
+import { useRouter } from 'next/navigation';
+
 export default function AdminLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const router = useRouter();
+
+    async function handleLogout() {
+        const result = await logoutAdmin();
+        if (result.success) {
+            router.push('/admin');
+        }
+    }
 
     const navItems = [
-        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/admin' },
+        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', href: '/admin/dashboard' },
         { icon: <Building2 size={20} />, label: 'Tenants', href: '/admin/tenants' },
         { icon: <Users size={20} />, label: 'Platform Users', href: '/admin/users' },
         { icon: <Ticket size={20} />, label: 'Ticket Sales', href: '/admin/sales' },
@@ -73,7 +84,10 @@ export default function AdminLayout({
 
                     {/* User Bottom Section */}
                     <div className="p-4 border-t border-slate-100">
-                        <button className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-all duration-200">
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-50 transition-all duration-200"
+                        >
                             <LogOut size={20} className="shrink-0" />
                             {isSidebarOpen && <span className="text-sm font-semibold">Logout</span>}
                         </button>
