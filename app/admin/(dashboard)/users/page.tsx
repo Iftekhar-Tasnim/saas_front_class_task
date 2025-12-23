@@ -1,5 +1,5 @@
-import React from 'react';
-import { Users, Shield, ShieldCheck, Mail, Clock } from 'lucide-react';
+import SectionHeader from '@/components/admin/SectionHeader';
+import { Users, Shield, ShieldCheck, Mail, Clock, Plus } from 'lucide-react';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -14,16 +14,13 @@ export default async function UsersPage() {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-slate-950 tracking-tight italic">Platform Users</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Super admins and platform control users.</p>
-                </div>
-                <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-indigo-200">
-                    <PlusIcon size={20} />
-                    <span>Invite Platform Admin</span>
-                </button>
-            </div>
+            <SectionHeader
+                title="Platform Users"
+                description="Super admins and platform control users."
+                icon={<Users size={24} />}
+                actionLabel="Invite Platform Admin"
+                actionIcon={<Plus size={20} />}
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {admins.map((admin: any) => (
@@ -72,11 +69,4 @@ export default async function UsersPage() {
     );
 }
 
-function PlusIcon({ size }: { size: number }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
-    )
-}
+

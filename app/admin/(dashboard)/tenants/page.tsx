@@ -1,6 +1,7 @@
-import React from 'react';
+import SectionHeader from '@/components/admin/SectionHeader';
+import StatsGrid from '@/components/admin/StatsGrid';
 import Link from 'next/link';
-import { Building2, Plus, Search, Filter, ChevronRight, MoreVertical } from 'lucide-react';
+import { Building2, Plus, Search, Filter, ChevronRight } from 'lucide-react';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -13,33 +14,23 @@ async function getTenants() {
 export default async function TenantsPage() {
     const tenants = await getTenants();
 
+    const stats = [
+        { label: 'Total Tenants', value: tenants.length },
+        { label: 'Active', value: tenants.filter((t: any) => t.status === 'active').length },
+        { label: 'Pending Review', value: tenants.filter((t: any) => t.status === 'pending').length },
+    ];
+
     return (
         <div className="space-y-8">
-            {/* Header section */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-slate-950 tracking-tight italic">Tenants Management</h1>
-                    <p className="text-slate-500 mt-1 font-medium">Manage and onboard organizations on TicketBD.</p>
-                </div>
-                <button className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-slate-200">
-                    <Plus size={20} />
-                    <span>Onboard New Tenant</span>
-                </button>
-            </div>
+            <SectionHeader
+                title="Tenants Management"
+                description="Manage and onboard organizations on TicketBD."
+                icon={<Building2 size={24} />}
+                actionLabel="Onboard New Tenant"
+                actionIcon={<Plus size={20} />}
+            />
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                    { label: 'Total Tenants', value: tenants.length, color: 'blue' },
-                    { label: 'Active', value: tenants.filter((t: any) => t.status === 'active').length, color: 'emerald' },
-                    { label: 'Pending Review', value: tenants.filter((t: any) => t.status === 'pending').length, color: 'amber' },
-                ].map((stat) => (
-                    <div key={stat.label} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm shadow-slate-200/50">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">{stat.label}</p>
-                        <p className="text-3xl font-black text-slate-950 italic">{stat.value}</p>
-                    </div>
-                ))}
-            </div>
+            <StatsGrid stats={stats as any} />
 
             {/* Controls */}
             <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4">
@@ -88,8 +79,8 @@ export default async function TenantsPage() {
                                     </td>
                                     <td className="px-6 py-5">
                                         <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${tenant.status === 'active'
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                : 'bg-amber-50 text-amber-700 border-amber-100'
+                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                            : 'bg-amber-50 text-amber-700 border-amber-100'
                                             }`}>
                                             {tenant.status}
                                         </span>
