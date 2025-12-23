@@ -22,7 +22,23 @@ This document outlines the frontend architecture, user flows, and component stru
 
 ---
 
-## 1. Shared Infrastructure
+## 1. Domain & Routing Strategy (Multi-Subdomain SaaS)
+To provide a premium white-label experience and clear isolation between marketing and operations, TicketBD will use a subdomain-based routing strategy.
+
+| Domain | Role | Internal View Folder |
+| --- | --- | --- |
+| `ticketbd.com` | Marketing Landing Page | `app/(marketing)/*` |
+| `admin.ticketbd.com`| Platform & Tenant Admin Portal | `app/(admin)/*` |
+| `*.ticketbd.com` | Tenant Public Storefronts | `app/(tenant)/*` |
+
+### Implementation with Next.js Middleware
+We will use **Next.js Middleware** to intercept requests and rewrite them based on the `host` header.
+- `GET admin.ticketbd.com/dashboard` → Rewrite to `/admin/dashboard`
+- `GET concert-bd.ticketbd.com/` → Rewrite to `/tenant/concert-bd/`
+
+---
+
+## 2. Shared Infrastructure
 ### Authentication & Guards
 - **Login Page:** Centralized login for all users.
 - **JWT Handling:** Store tokens in secure HttpOnly cookies (preferred) or encrypted LocalStorage.
